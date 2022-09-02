@@ -6,6 +6,15 @@ version = "0.0.0"
 edition = "2021"
 
 
+[dependencies.dotenvy]
+version = "0.15.3"
+
+[dependencies.futures]
+version = "0.3.24"
+
+[dependencies.lazy_static]
+version = "1.4.0"
+
 [dependencies.regex]
 version = "1.6.0"
 
@@ -14,6 +23,9 @@ version = "0.13.0"
 
 [dependencies.twilight-http]
 version = "0.13.0"
+
+[dependencies.twilight-model]
+version = "0.13.2"
 
 [dependencies.tokio]
 version = "1.20.1"
