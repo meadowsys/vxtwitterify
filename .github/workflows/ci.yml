@@ -30,7 +30,6 @@ jobs:
       run: cargo build --release
 
     - name: prepare for build artifacts
-      shell: fish {0}
       run: |
         mv target/release/vxtwitterify .
 
