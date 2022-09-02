@@ -1,0 +1,44 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+    - "**"
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+        - rust: "1.62.0"
+
+    steps:
+    - name: checkout source repo
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+
+    - name: install rust
+      run: |
+        rustup self update
+        rustup update ${{ matrix.env.rust }}
+        rustup default ${{ matrix.env.rust }}
+
+    - name: build
+      run: cargo build --release
+
+    - name: prepare for build artifacts
+      shell: fish {0}
+      run: |
+        mv target/release/vxtwitterify .
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
+      with:
+        name: wachmann-release
+        path: |
+          LICENSE
+          README.md
+          vxtwitterify
