@@ -21,26 +21,29 @@ async fn main() -> MainResult {
 	cluster.up().await;
 	let cluster_down = cluster.clone();
 
-	println!("connected!");
+	println!("up!");
 
-	while let Some((_shard_id, event)) = events.next().await {
-		use twilight_model::gateway::event::Event::*;
+	spawn(async move {
+		while let Some((_shard_id, event)) = events.next().await {
+			use twilight_model::gateway::event::Event::*;
 
-		let http_client = Arc::clone(&http_client);
-		spawn(async move {
-			match event {
-				MessageCreate(msg) => { handle_message_create(msg, &http_client).await }
-				MessageUpdate(msg) => {}
-				MessageDelete(msg) => {}
-				ReactionAdd(reaction) => {}
-				_ => {}
-			}
-		});
-	}
+			let http_client = Arc::clone(&http_client);
 
-	wait_for_shutdown_signals(cluster_down).await;
+				match event {
+					MessageCreate(msg) => { handle_message_create(msg, &http_client).await }
+					MessageUpdate(msg) => {}
+					MessageDelete(msg) => {}
+					ReactionAdd(reaction) => {}
+					_ => {}
+				}
 
-	println!("shutting down");
+		}
+	});
+
+	wait_for_shutdown_signals(&cluster_down).await;
+
+	cluster_down.down();
+	println!("down!");
 
 	Ok(())
 }
@@ -118,7 +121,7 @@ async fn send_message<'h>(
 	let _ = message.exec().await;
 }
 
-async fn wait_for_shutdown_signals(cluster: Arc<Cluster>) {
+async fn wait_for_shutdown_signals(cluster: &Arc<Cluster>) {
 	use tokio::signal::unix::{ signal, SignalKind };
 	let mut sigint = signal(SignalKind::interrupt()).unwrap();
 	let mut sigterm = signal(SignalKind::terminate()).unwrap();
